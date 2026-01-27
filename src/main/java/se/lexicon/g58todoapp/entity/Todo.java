@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -40,6 +42,14 @@ public class Todo {
     private Person assignedTo;
 
     //TODO ATTACHMENT
+    // Relationship: One Todo can have many Attachments
+    // cascade = CascadeType.ALL means when we save/delete a todo, attachments are also saved/deleted
+    // orphanRemoval = true means if we remove an attachment from the set, it's deleted from database
+    // mappedBy = "todo" refers to the 'todo' field in the Attachment entity
+    @OneToMany(mappedBy = "todo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude // Exclude from toString to avoid circular reference issues
+    private Set<Attachment> attachments = new HashSet<>();
+
 
 
     // TODO Add one more Constructor, Title, description
@@ -65,4 +75,61 @@ public class Todo {
     }
 
     // TODO : Equals & Hashcode
+    /**
+     * Equals method - compares todos based on their ID
+     * Two todos are equal if they have the same ID
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true; // Same object reference
+        if (o == null || getClass() != o.getClass()) return false; // Null or different class
+        Todo todo = (Todo) o;
+        return id != null && id.equals(todo.id); // Compare by ID
+    }
+
+    /**
+     * HashCode method - generates hash based on ID
+     * Must be consistent with equals method
+     */
+    @Override
+    public int hashCode() {
+        return getClass().hashCode(); // Use class hash for consistency
+    }
+
+    /**
+     * Lifecycle method - automatically sets createdAt timestamp
+     * Runs BEFORE the entity is saved to the database for the first time
+     */
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    /**
+     * Lifecycle method - automatically updates updatedAt timestamp
+     * Runs BEFORE the entity is updated in the database
+     */
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    /**
+     * Helper method to add an attachment to this todo
+     * Maintains bidirectional relationship between Todo and Attachment
+     */
+    public void addAttachment(Attachment attachment) {
+        attachments.add(attachment); // Add to this todo's attachment set
+        attachment.setTodo(this); // Set this todo as the attachment's parent
+    }
+
+    /**
+     * Helper method to remove an attachment from this todo
+     * Maintains bidirectional relationship
+     */
+    public void removeAttachment(Attachment attachment) {
+        attachments.remove(attachment); // Remove from this todo's attachment set
+        attachment.setTodo(null); // Remove the reference to this todo
+    }
 }
