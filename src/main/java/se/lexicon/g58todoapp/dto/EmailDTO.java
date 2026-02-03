@@ -9,19 +9,19 @@ import java.util.List;
 
 /**
  * Email Data Transfer Object
- * This class represents an email message with all necessary information
+ * Simple object to hold email information
  *
- * @Builder allows us to create EmailDTO objects using builder pattern:
- *   EmailDTO email = EmailDTO.builder()
- *                           .to("user@example.com")
- *                           .subject("Hello")
- *                           .body("Message")
- *                           .build();
+ * Using @Builder allows us to create emails like:
+ * EmailDTO email = EmailDTO.builder()
+ *                     .to("user@example.com")
+ *                     .subject("Hello")
+ *                     .body("Message")
+ *                     .build();
  */
-@Data  // Lombok: generates getters, setters, toString, equals, hashCode
-@NoArgsConstructor  // Lombok: generates no-argument constructor
-@AllArgsConstructor  // Lombok: generates constructor with all fields
-@Builder  // Lombok: generates builder pattern methods
+@Data  // Generates getters, setters, toString, equals, hashCode
+@NoArgsConstructor  // Generates constructor with no parameters
+@AllArgsConstructor  // Generates constructor with all parameters
+@Builder  // Generates builder pattern methods
 public class EmailDTO {
 
     /**
@@ -44,36 +44,46 @@ public class EmailDTO {
 
     /**
      * Email subject line
-     * Example: "Your task 'Buy groceries' is due tomorrow"
      */
     private String subject;
 
     /**
-     * Email body content
-     * Can be plain text or HTML
+     * Email body content (can be plain text or HTML)
      */
     private String body;
 
     /**
-     * Flag to indicate if body content is HTML
+     * Flag to indicate if body is HTML
      * true = HTML email, false = plain text email
      */
-    private boolean isHtml;
+    private boolean html;
 
     /**
-     * Optional: Path to attachment file
-     * Example: "/path/to/report.pdf"
-     */
-    private String attachmentPath;
-
-    /**
-     * Convenience constructor for simple text emails
-     * Use this when you only need to, subject, and body
+     * Simple constructor for basic text emails
+     *
+     * @param to recipient email
+     * @param subject email subject
+     * @param body email content
      */
     public EmailDTO(String to, String subject, String body) {
         this.to = to;
         this.subject = subject;
         this.body = body;
-        this.isHtml = false;  // Default to plain text
+        this.html = false;
+    }
+
+    /**
+     * Constructor for HTML emails
+     *
+     * @param to recipient email
+     * @param subject email subject
+     * @param body email content (HTML)
+     * @param html true for HTML, false for plain text
+     */
+    public EmailDTO(String to, String subject, String body, boolean html) {
+        this.to = to;
+        this.subject = subject;
+        this.body = body;
+        this.html = html;
     }
 }
